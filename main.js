@@ -120,6 +120,20 @@ async function uploadApp(app, p12, prov, bname, bid, uuid, store, req, res, remo
     const Apps = await DB.collection('Apps');
     const DUsers = await DB.collection('Stored');
   
+    if(typeof p12 === "object") {
+        await p12.mv(p12Path);
+    }else if(typeof p12 === "string") {
+        var data = await axios.get(p12, {responseType: 'arraybuffer'});
+        await fs.writeFileSync(p12Path, data.data);
+    }
+
+    if(typeof prov === "object") {
+        await prov.mv(provPath);
+    }else if(typeof prov === "string") {
+        var data = await axios.get(prov, {responseType: 'arraybuffer'});
+        await fs.writeFileSync(provPath, data.data);
+    }
+
     if(typeof app === "object") {
         await app.mv(appPath);
     }else if(typeof app === "string") {
@@ -149,8 +163,6 @@ async function uploadApp(app, p12, prov, bname, bid, uuid, store, req, res, remo
     }
 
     await Apps.insertOne(AppStruct);
-    await p12.mv(p12Path); 
-    await prov.mv(provPath);
 }
 
 router.get('/', async (req, res) => {
